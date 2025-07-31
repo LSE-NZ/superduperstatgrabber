@@ -10,9 +10,9 @@ from datetime import timedelta
 
 my_region = 'euw1'
 
-puuid = '_J-2ueCR5fA3h616PW1x66e5FR0BNhm8WkA4w7QYA21u9rmD-Yddsmk4fBvfcERdV0qqEatf6KbYkA'
+puuid = 'PUUID'
 
-lol_watcher = LolWatcher('RGAPI-8dd0b8ec-fb50-43c1-a6c9-b71dcece7ee6') #API Key
+lol_watcher = LolWatcher('API Key')
 
 me = lol_watcher.summoner.by_puuid(region = 'euw1', encrypted_puuid = '_J-2ueCR5fA3h616PW1x66e5FR0BNhm8WkA4w7QYA21u9rmD-Yddsmk4fBvfcERdV0qqEatf6KbYkA')
 
