@@ -21,7 +21,7 @@ elif most_wanted_inter == "Vladi":
     puuid = 'qZ65dfrYt3l8bzYOydozor65qRb5VT9SYirQezHvbUM-lXHs9gqewu06IQIzK8sBS6QP0ItY8oZo7Q'
     my_region = 'euw1'
 
-lol_watcher = LolWatcher('RGAPI-8dd0b8ec-fb50-43c1-a6c9-b71dcece7ee6') ##################################################API Key##################################################
+lol_watcher = LolWatcher('API Key') ##################################################API Key##################################################
 me = lol_watcher.summoner.by_puuid(region = my_region, encrypted_puuid = puuid)
 match_history = lol_watcher.match.matchlist_by_puuid(region = my_region, puuid = puuid, count = 100)
 
