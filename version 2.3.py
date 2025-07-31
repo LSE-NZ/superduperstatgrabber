@@ -1,0 +1,126 @@
+import riotwatcher
+
+from riotwatcher import LolWatcher, RiotWatcher, ApiError
+
+import pandas as pd
+
+import os
+
+from datetime import timedelta
+
+my_region = 'euw1'
+
+puuid = '_J-2ueCR5fA3h616PW1x66e5FR0BNhm8WkA4w7QYA21u9rmD-Yddsmk4fBvfcERdV0qqEatf6KbYkA'
+
+lol_watcher = LolWatcher('RGAPI-8dd0b8ec-fb50-43c1-a6c9-b71dcece7ee6') #API Key
+
+me = lol_watcher.summoner.by_puuid(region = 'euw1', encrypted_puuid = '_J-2ueCR5fA3h616PW1x66e5FR0BNhm8WkA4w7QYA21u9rmD-Yddsmk4fBvfcERdV0qqEatf6KbYkA')
+
+match_history = lol_watcher.match.matchlist_by_puuid(region = 'euw1', puuid = '_J-2ueCR5fA3h616PW1x66e5FR0BNhm8WkA4w7QYA21u9rmD-Yddsmk4fBvfcERdV0qqEatf6KbYkA', count = 20)
+
+def lastgame():
+
+    
+
+    match_history = lol_watcher.match.matchlist_by_puuid(region = 'euw1', puuid = '_J-2ueCR5fA3h616PW1x66e5FR0BNhm8WkA4w7QYA21u9rmD-Yddsmk4fBvfcERdV0qqEatf6KbYkA', count = 20)
+
+    results = []
+
+    last_game_id = []
+
+    all_games = False
+
+    frame_index = 10
+
+    if all_games:
+        last_game_id.extend(match_history)
+        
+    else:  
+
+        last_game_id.append(match_history[5])
+    
+    for match in last_game_id:
+
+        timeline_data = lol_watcher.match.timeline_by_match(region = 'euw1', match_id = match)
+        
+        match_data = lol_watcher.match.by_id(region = 'euw1', match_id = match)
+
+        player_index = match_data['metadata']['participants'].index(puuid)
+        
+        par_id = player_index + 1
+
+        sr_game = match_data['info']['gameMode']
+
+        if sr_game == 'CLASSIC':
+
+            def get_damage_at_frame(timeline_data, frame_index, participant_id):
+
+                frame = timeline_data['info']['frames'][frame_index]
+                
+                participant_frame = frame['participantFrames'][str(participant_id)]
+                
+                damage_stats = {
+                    'total_damage_to_champions': participant_frame.get('damageStats', {}).get('totalDamageDoneToChampions', 0),
+                    'timestamp': frame.get('timestamp', 0)
+                }
+                
+                return damage_stats
+
+            game_duration = match_data['info']['gameDuration']
+
+            minutes = game_duration // 60
+            seconds = game_duration % 60
+
+            game_time = f"{minutes:02d}:{seconds:02d}"
+
+            did_win = match_data['info']['participants'][player_index]['win'] 
+
+            if did_win:
+
+                win = 'win'
+
+            else:
+        
+                win = 'lost'
+
+            #spreadsheet
+        
+            results.append({
+            "Champion": match_data['info']['participants'][player_index]['championName'],
+            "Length": game_time,"Damage": match_data['info']['participants'][player_index]['totalDamageDealtToChampions'],
+            "DPM": int(match_data['info']['participants'][player_index]['totalDamageDealtToChampions'] / (game_duration / 60)),
+            "CS": match_data['info']['participants'][player_index]['totalMinionsKilled'],
+            "CS/M": f"{match_data['info']['participants'][player_index]['totalMinionsKilled'] / (game_duration / 60):.1f}",
+            "DMG@5": get_damage_at_frame(timeline_data = timeline_data, frame_index=4, participant_id = par_id)['total_damage_to_champions'],
+            "DMG@10": get_damage_at_frame(timeline_data = timeline_data, frame_index = 9, participant_id = par_id)['total_damage_to_champions'],
+            "DMG@15": get_damage_at_frame(timeline_data = timeline_data, frame_index = 14, participant_id = par_id)['total_damage_to_champions'],
+            "DMG@20": get_damage_at_frame(timeline_data = timeline_data, frame_index = 19, participant_id = par_id)['total_damage_to_champions'],
+            "DMG@25": get_damage_at_frame(timeline_data = timeline_data, frame_index = 24, participant_id = par_id)['total_damage_to_champions'],
+            "DMG@30": get_damage_at_frame(timeline_data = timeline_data, frame_index = 29, participant_id = par_id)['total_damage_to_champions'],
+
+            
+            
+            
+            
+            
+            
+            "Turret Damage": match_data['info']['participants'][player_index]['damageDealtToTurrets'],
+            "Result": win,
+            "Gold": match_data['info']['participants'][player_index]['goldEarned'],
+            })
+           
+            
+        
+        else:
+            
+            continue
+
+    #match_data['InfoTimeLine']['participants'][player_index]['']
+        
+                
+    df = pd.DataFrame(results)
+    df.to_excel("output.xlsx", index=False)
+    os.startfile(r"C:\Users\kiwis\Desktop\YEpTHIS IS FOR THE NEW PROJECT\output.xlsx")
+
+
+lastgame()
